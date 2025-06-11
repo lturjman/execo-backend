@@ -1,0 +1,47 @@
+var express = require("express");
+var router = express.Router({ mergeParams: true });
+
+require("../models/member");
+const Member = require("../models/member");
+const Group = require("../models/group");
+
+router.get("/", (req, res) => {
+  Member.find().then((data) => {
+    res.json({ data });
+  });
+});
+
+router.post("/", async (req, res) => {
+  const { groupId } = req.params;
+
+  const group = await Group.findById(groupId);
+  if (!group) return res.status(404).json({ error: "Group not found" });
+
+  Member.create({ ...req.body.member, groupId: group._id }).then((data) => {
+    res.json({ data });
+  });
+});
+
+router.put("/:id", async (req, res) => {
+  const { groupId } = req.params;
+
+  const group = await Group.findById(groupId);
+  if (!group) return res.status(404).json({ error: "Group not found" });
+
+  Member.findByIdAndUpdate(req.params.id, req.body.member).then((data) => {
+    res.json({ data });
+  });
+});
+
+router.delete("/:id", async (req, res) => {
+  const { groupId } = req.params;
+
+  const group = await Group.findById(groupId);
+  if (!group) return res.status(404).json({ error: "Group not found" });
+
+  Member.findByIdAndDelete(req.params.id).then((data) => {
+    res.json({ data });
+  });
+});
+
+module.exports = router;
