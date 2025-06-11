@@ -1,6 +1,7 @@
 var express = require("express");
 var router = express.Router();
 var membersRouter = require("./members");
+var expensesRouter = require("./expenses");
 
 require("../models/group");
 const Group = require("../models/group");
@@ -30,5 +31,6 @@ router.delete("/:id", (req, res) => {
 });
 
 router.use("/:groupId/members", membersRouter);
+router.use("/:memberId/expenses", expensesRouter);
 
 module.exports = router;
