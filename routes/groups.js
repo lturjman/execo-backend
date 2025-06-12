@@ -12,6 +12,12 @@ router.get("/", (req, res) => {
   });
 });
 
+router.get("/:id", (req, res) => {
+  Group.findById(req.params.id).then((data) => {
+    res.json({ data });
+  });
+});
+
 router.post("/", (req, res) => {
   Group.create(req.body.group).then((data) => {
     res.json({ data });
