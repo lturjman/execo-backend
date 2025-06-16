@@ -1,12 +1,19 @@
 var express = require("express");
 var router = express.Router();
 var membersRouter = require("./members");
+var expensesRouter = require("./expenses");
 
 require("../models/group");
 const Group = require("../models/group");
 
 router.get("/", (req, res) => {
   Group.find().then((data) => {
+    res.json({ data });
+  });
+});
+
+router.get("/:id", (req, res) => {
+  Group.findById(req.params.id).then((data) => {
     res.json({ data });
   });
 });
@@ -30,5 +37,6 @@ router.delete("/:id", (req, res) => {
 });
 
 router.use("/:groupId/members", membersRouter);
+router.use("/:groupId/expenses", expensesRouter);
 
 module.exports = router;
