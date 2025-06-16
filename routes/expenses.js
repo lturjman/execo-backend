@@ -1,29 +1,49 @@
 var express = require("express");
-var router = express.Router();
+var router = express.Router({ mergeParams: true });
 
-require("../models/group");
+const Group = require("../models/group");
 const Expense = require("../models/expense");
 
-router.get("/", (req, res) => {
-  Expense.find().then((data) => {
+async function findGroup(req) {
+  const { groupId } = req.params;
+
+  const group = await Group.findById(groupId);
+  if (!group) return res.status(404).json({ error: "Group not found" });
+
+  return group;
+}
+
+router.get("/", async (req, res) => {
+  const group = await findGroup(req, res);
+
+  Expense.find({ groupId: group._id }).then((data) => {
     res.json({ data });
   });
 });
 
-router.post("/", (req, res) => {
-  Expense.create(req.body.expense).then((data) => {
+router.post("/", async (req, res) => {
+  const group = await findGroup(req, res);
+
+  Expense.create({
+    ...req.body.expense,
+    groupId: group._id,
+  }).then((data) => {
     res.json({ data });
   });
 });
 
-router.put("/:id", (req, res) => {
-  Expense.findByIdAndUpdate(req.params.id, req.body.expense).then((data) => {
+router.put("/:id", async (req, res) => {
+  const { groupId } = req.params;
+  Expense.findOneAndUpdate({ _id: req.params.id, groupId }, req.body.expense, {
+    new: true,
+  }).then((data) => {
     res.json({ data });
   });
 });
 
-router.delete("/:id", (req, res) => {
-  Expense.findByIdAndDelete(req.params.id).then((data) => {
+router.delete("/:id", async (req, res) => {
+  const { groupId } = req.params;
+  Expense.findOneAndDelete({ _id: req.params.id, groupId }).then((data) => {
     res.json({ data });
   });
 });

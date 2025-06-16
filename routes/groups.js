@@ -37,6 +37,6 @@ router.delete("/:id", (req, res) => {
 });
 
 router.use("/:groupId/members", membersRouter);
-router.use("/:memberId/expenses", expensesRouter);
+router.use("/:groupId/expenses", expensesRouter);
 
 module.exports = router;
