@@ -5,17 +5,25 @@ require("../models/member");
 const Member = require("../models/member");
 const Group = require("../models/group");
 
-router.get("/", (req, res) => {
-  Member.find().then((data) => {
+async function findGroup(req) {
+  const { groupId } = req.params;
+
+  const group = await Group.findById(groupId);
+  if (!group) return res.status(404).json({ error: "Group not found" });
+
+  return group;
+}
+
+router.get("/", async (req, res) => {
+  const group = await findGroup(req);
+
+  Member.find({ groupId: group._id }).then((data) => {
     res.json({ data });
   });
 });
 
 router.post("/", async (req, res) => {
-  const { groupId } = req.params;
-
-  const group = await Group.findById(groupId);
-  if (!group) return res.status(404).json({ error: "Group not found" });
+  const group = await findGroup(req);
 
   Member.create({ ...req.body.member, groupId: group._id }).then((data) => {
     res.json({ data });
@@ -23,10 +31,7 @@ router.post("/", async (req, res) => {
 });
 
 router.put("/:id", async (req, res) => {
-  const { groupId } = req.params;
-
-  const group = await Group.findById(groupId);
-  if (!group) return res.status(404).json({ error: "Group not found" });
+  const group = await findGroup(req);
 
   Member.findByIdAndUpdate(req.params.id, req.body.member).then((data) => {
     res.json({ data });
@@ -34,10 +39,7 @@ router.put("/:id", async (req, res) => {
 });
 
 router.delete("/:id", async (req, res) => {
-  const { groupId } = req.params;
-
-  const group = await Group.findById(groupId);
-  if (!group) return res.status(404).json({ error: "Group not found" });
+  const group = await findGroup(req);
 
   Member.findByIdAndDelete(req.params.id).then((data) => {
     res.json({ data });

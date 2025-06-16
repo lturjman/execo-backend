@@ -5,7 +5,11 @@ const memberSchema = mongoose.Schema({
   monthlyRevenue: Number,
   monthlyCharges: Number,
   share: Number,
-  groupId: { type: mongoose.Schema.Types.ObjectId, ref: "groups" },
+  groupId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "groups",
+    required: true,
+  },
 });
 
 const Member = mongoose.model("members", memberSchema);
