@@ -1,8 +1,8 @@
 const mongoose = require("mongoose");
 
 const expenseSchema = mongoose.Schema({
-  name: String,
-  amount: Number,
+  name: { type: String, required: true },
+  amount: { type: Number, required: true },
   member: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Member",

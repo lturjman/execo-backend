@@ -16,7 +16,7 @@ async function findGroup(req) {
 router.get("/", async (req, res) => {
   const group = await findGroup(req, res);
 
-  Expense.find({ group })
+  return Expense.find({ group })
     .populate("member")
     .then((data) => {
       res.json({ data });
@@ -26,7 +26,7 @@ router.get("/", async (req, res) => {
 router.post("/", async (req, res) => {
   const group = await findGroup(req, res);
 
-  Expense.create({
+  return Expense.create({
     ...req.body.expense,
     group,
   }).then((data) => {
@@ -37,9 +37,13 @@ router.post("/", async (req, res) => {
 router.put("/:id", async (req, res) => {
   const group = await findGroup(req, res);
 
-  Expense.findOneAndUpdate({ _id: req.params.id, group }, req.body.expense, {
-    new: true,
-  }).then((data) => {
+  return Expense.findOneAndUpdate(
+    { _id: req.params.id, group },
+    req.body.expense,
+    {
+      new: true,
+    }
+  ).then((data) => {
     res.json({ data });
   });
 });
@@ -47,9 +51,11 @@ router.put("/:id", async (req, res) => {
 router.delete("/:id", async (req, res) => {
   const group = await findGroup(req, res);
 
-  Expense.findOneAndDelete({ _id: req.params.id, group }).then((data) => {
-    res.json({ data });
-  });
+  return Expense.findOneAndDelete({ _id: req.params.id, group }).then(
+    (data) => {
+      res.json({ data });
+    }
+  );
 });
 
 module.exports = router;

@@ -1,9 +1,9 @@
 const mongoose = require("mongoose");
 
 const memberSchema = mongoose.Schema({
-  name: String,
-  monthlyRevenue: Number,
-  monthlyCharges: Number,
+  name: { type: String, required: true },
+  monthlyRevenue: { type: Number, required: true },
+  monthlyCharges: { type: Number, required: true },
   share: Number,
   group: {
     type: mongoose.Schema.Types.ObjectId,
