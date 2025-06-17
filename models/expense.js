@@ -3,18 +3,18 @@ const mongoose = require("mongoose");
 const expenseSchema = mongoose.Schema({
   name: String,
   amount: Number,
-  memberId: {
+  member: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "members",
+    ref: "Member",
     required: true,
   },
-  groupId: {
+  group: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "groups",
+    ref: "Group",
     required: true,
   },
 });
 
-const Expense = mongoose.model("expenses", expenseSchema);
+const Expense = mongoose.model("Expense", expenseSchema);
 
 module.exports = Expense;
