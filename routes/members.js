@@ -17,7 +17,7 @@ async function findGroup(req) {
 router.get("/", async (req, res) => {
   const group = await findGroup(req);
 
-  Member.find({ groupId: group._id }).then((data) => {
+  Member.find({ group }).then((data) => {
     res.json({ data });
   });
 });
@@ -25,7 +25,7 @@ router.get("/", async (req, res) => {
 router.post("/", async (req, res) => {
   const group = await findGroup(req);
 
-  Member.create({ ...req.body.member, groupId: group._id }).then((data) => {
+  Member.create({ ...req.body.member, group }).then((data) => {
     res.json({ data });
   });
 });
@@ -33,15 +33,17 @@ router.post("/", async (req, res) => {
 router.put("/:id", async (req, res) => {
   const group = await findGroup(req);
 
-  Member.findByIdAndUpdate(req.params.id, req.body.member).then((data) => {
-    res.json({ data });
-  });
+  Member.findOneAndUpdate({ group, _id: req.params.id }, req.body.member).then(
+    (data) => {
+      res.json({ data });
+    }
+  );
 });
 
 router.delete("/:id", async (req, res) => {
   const group = await findGroup(req);
 
-  Member.findByIdAndDelete(req.params.id).then((data) => {
+  Member.findOneAndUpdate({ group, _id: req.params.id }).then((data) => {
     res.json({ data });
   });
 });

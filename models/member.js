@@ -5,13 +5,13 @@ const memberSchema = mongoose.Schema({
   monthlyRevenue: Number,
   monthlyCharges: Number,
   share: Number,
-  groupId: {
+  group: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "groups",
+    ref: "Group",
     required: true,
   },
 });
 
-const Member = mongoose.model("members", memberSchema);
+const Member = mongoose.model("Member", memberSchema);
 
 module.exports = Member;
