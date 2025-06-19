@@ -25,7 +25,9 @@ router.post("/", (req, res) => {
 });
 
 router.put("/:id", (req, res) => {
-  return Group.findByIdAndUpdate(req.params.id, req.body.group).then((data) => {
+  return Group.findByIdAndUpdate(req.params.id, req.body.group, {
+    new: true,
+  }).then((data) => {
     res.json({ data });
   });
 });
