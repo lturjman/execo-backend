@@ -1,5 +1,8 @@
 var express = require("express");
 var router = express.Router({ mergeParams: true });
+const {
+  Types: { ObjectId },
+} = require("mongoose");
 
 require("../models/member");
 const Member = require("../models/member");
@@ -32,10 +35,29 @@ router.post("/", async (req, res) => {
 
 router.put("/:id", async (req, res) => {
   const group = await findGroup(req);
+  const leftover =
+    req.body.member.monthlyRevenue - req.body.member.monthlyCharges;
+
+  const totalLeftoverQuery = await Member.aggregate([
+    {
+      $match: {
+        group: group._id,
+        _id: { $ne: new ObjectId(req.params.id) },
+      },
+    },
+    {
+      $group: {
+        _id: null,
+        totalLeftover: { $sum: "$leftover" },
+      },
+    },
+  ]);
+
+  const share = leftover / (totalLeftoverQuery[0].totalLeftover + leftover);
 
   return Member.findOneAndUpdate(
     { group, _id: req.params.id },
-    req.body.member
+    { ...req.body.member, leftover, share }
   ).then((data) => {
     res.json({ data });
   });
