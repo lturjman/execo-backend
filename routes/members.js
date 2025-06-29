@@ -44,7 +44,7 @@ router.put("/:id", async (req, res) => {
 router.delete("/:id", async (req, res) => {
   const group = await findGroup(req);
 
-  return Member.findOneAndUpdate({ group, _id: req.params.id }).then((data) => {
+  return Member.findOneAndDelete({ group, _id: req.params.id }).then((data) => {
     res.json({ data });
   });
 });
