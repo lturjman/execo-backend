@@ -29,8 +29,8 @@ router.post("/", async (req, res) => {
   return Expense.create({
     ...req.body.expense,
     group,
-  }).then((data) => {
-    res.json({ data });
+  }).then(async (data) => {
+    res.json({ data: await data.populate("member") });
   });
 });
 
