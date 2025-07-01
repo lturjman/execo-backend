@@ -16,11 +16,9 @@ async function findGroup(req) {
 router.get("/", async (req, res) => {
   const group = await findGroup(req, res);
 
-  return Expense.find({ group })
-    .populate("member")
-    .then((data) => {
-      res.json({ data });
-    });
+  return Expense.find({ group }).then((data) => {
+    res.json({ data });
+  });
 });
 
 router.post("/", async (req, res) => {
@@ -30,7 +28,7 @@ router.post("/", async (req, res) => {
     ...req.body.expense,
     group,
   }).then(async (data) => {
-    res.json({ data: await data.populate("member") });
+    res.json({ data });
   });
 });
 
