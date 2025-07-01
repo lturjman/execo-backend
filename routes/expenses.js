@@ -16,9 +16,12 @@ async function findGroup(req) {
 router.get("/", async (req, res) => {
   const group = await findGroup(req, res);
 
-  return Expense.find({ group }).then((data) => {
-    res.json({ data });
-  });
+  return Expense.find({ group })
+    .populate("debts.member")
+    .populate("credits.member")
+    .then((data) => {
+      res.json({ data });
+    });
 });
 
 router.post("/", async (req, res) => {

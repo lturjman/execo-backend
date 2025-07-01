@@ -1,7 +1,18 @@
 const mongoose = require("mongoose");
+const {
+  validateTotalEqualsAmount,
+} = require("../middlewares/validateTotalEqualsAmount.js");
 
 const debtSchema = mongoose.Schema({
-  amount: { type: Number, required: true },
+  amount: {
+    type: Number,
+    required: true,
+    validate: {
+      validator: Number.isInteger,
+      message: (props) => `${props.value} n'est pas un entier`,
+    },
+  },
+
   member: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Member",
@@ -10,7 +21,14 @@ const debtSchema = mongoose.Schema({
 });
 
 const creditSchema = mongoose.Schema({
-  amount: { type: Number, required: true },
+  amount: {
+    type: Number,
+    required: true,
+    validate: {
+      validator: Number.isInteger,
+      message: (props) => `${props.value} n'est pas un entier`,
+    },
+  },
   member: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Member",
@@ -20,7 +38,14 @@ const creditSchema = mongoose.Schema({
 
 const expenseSchema = mongoose.Schema({
   name: { type: String, required: true },
-  amount: { type: Number, required: true },
+  amount: {
+    type: Number,
+    required: true,
+    validate: {
+      validator: Number.isInteger,
+      message: (props) => `${props.value} n'est pas un entier`,
+    },
+  },
   group: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Group",
@@ -31,20 +56,24 @@ const expenseSchema = mongoose.Schema({
 });
 
 expenseSchema.pre("validate", function (next) {
-  const totalDebts = this.debts.reduce((sum, debts) => sum + debts.amount, 0);
-  const totalCredits = this.credits.reduce(
-    (sum, credits) => sum + credits.amount,
-    0
-  );
-
-  if (
-    Math.abs(totalDebts - this.amount) === 0 ||
-    Math.abs(totalCredits - this.amount) === 0
-  ) {
+  if (!validateTotalEqualsAmount(this.debts, this.amount)) {
     return next(
       this.invalidate(
         "amount",
-        "La somme des crédits et des dettes doit être égale au montant."
+        "La somme des dettes ne correspond pas au montant."
+      )
+    );
+  }
+
+  next();
+});
+
+expenseSchema.pre("validate", function (next) {
+  if (!validateTotalEqualsAmount(this.credits, this.amount)) {
+    return next(
+      this.invalidate(
+        "amount",
+        "La somme des crédits ne correspond pas au montant."
       )
     );
   }
