@@ -51,8 +51,24 @@ const expenseSchema = mongoose.Schema({
     ref: "Group",
     required: true,
   },
-  debts: [debtSchema],
-  credits: [creditSchema],
+  debts: {
+    type: [debtSchema],
+    validate: {
+      validator: function (v) {
+        return Array.isArray(v) && v.length > 0;
+      },
+      message: "Il doit y avoir au moins une dette.",
+    },
+  },
+  credits: {
+    type: [creditSchema],
+    validate: {
+      validator: function (v) {
+        return Array.isArray(v) && v.length > 0;
+      },
+      message: "Il doit y avoir au moins un crédit.",
+    },
+  },
 });
 
 expenseSchema.pre("validate", function (next) {
