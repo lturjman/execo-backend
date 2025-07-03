@@ -32,8 +32,8 @@ function computePaybacks(balances) {
 
     if (amount > 0) {
       paybacks.push({
-        from: debtor.member,
-        to: creditor.member,
+        from: { _id: debtor.member, name: debtor.name },
+        to: { _id: creditor.member, name: creditor.name },
         amount,
       });
 

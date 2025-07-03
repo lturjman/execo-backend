@@ -5,6 +5,9 @@ const {
 } = require("mongoose");
 
 require("../models/member");
+
+const Decimal = require("decimal.js");
+
 const Member = require("../models/member");
 const Group = require("../models/group");
 
@@ -21,7 +24,10 @@ async function updateMembersShare(group) {
   ]);
 
   members.forEach(async (member) => {
-    member.share = member.leftover / totalLeftoverQuery[0].totalLeftover;
+    member.share = Decimal.div(
+      member.leftover,
+      totalLeftoverQuery[0].totalLeftover
+    );
     await member.save();
   });
 }
@@ -45,8 +51,10 @@ router.get("/", async (req, res) => {
 
 router.post("/", async (req, res) => {
   const group = await findGroup(req, res);
-  const leftover =
-    req.body.member.monthlyRevenue - req.body.member.monthlyCharges;
+  const leftover = Decimal.sub(
+    req.body.member.monthlyRevenue,
+    req.body.member.monthlyCharges
+  );
 
   return Member.create({ ...req.body.member, group, leftover }).then(
     async (data) => {
@@ -58,8 +66,10 @@ router.post("/", async (req, res) => {
 
 router.put("/:id", async (req, res) => {
   const group = await findGroup(req, res);
-  const leftover =
-    req.body.member.monthlyRevenue - req.body.member.monthlyCharges;
+  const leftover = Decimal.sub(
+    req.body.member.monthlyRevenue,
+    req.body.member.monthlyCharges
+  );
 
   return Member.findOneAndUpdate(
     { group, _id: req.params.id },

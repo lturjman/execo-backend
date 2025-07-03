@@ -26,13 +26,19 @@ router.get("/", async (req, res) => {
 
 router.post("/", async (req, res) => {
   const group = await findGroup(req, res);
+  if (!group) return;
 
-  return Expense.create({
+  const expense = await Expense.create({
     ...req.body.expense,
     group,
-  }).then(async (data) => {
-    res.json({ data });
   });
+
+  return Expense.findById(expense._id)
+    .populate("debts.member")
+    .populate("credits.member")
+    .then((data) => {
+      res.json({ data });
+    });
 });
 
 router.put("/:id", async (req, res) => {
