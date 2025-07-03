@@ -17,7 +17,8 @@ router.get("/", async (req, res) => {
   const group = await findGroup(req, res);
 
   return Expense.find({ group })
-    .populate("member")
+    .populate("debts.member")
+    .populate("credits.member")
     .then((data) => {
       res.json({ data });
     });
@@ -25,13 +26,19 @@ router.get("/", async (req, res) => {
 
 router.post("/", async (req, res) => {
   const group = await findGroup(req, res);
+  if (!group) return;
 
-  return Expense.create({
+  const expense = await Expense.create({
     ...req.body.expense,
     group,
-  }).then(async (data) => {
-    res.json({ data: await data.populate("member") });
   });
+
+  return Expense.findById(expense._id)
+    .populate("debts.member")
+    .populate("credits.member")
+    .then((data) => {
+      res.json({ data });
+    });
 });
 
 router.put("/:id", async (req, res) => {

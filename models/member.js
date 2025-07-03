@@ -4,6 +4,7 @@ const memberSchema = mongoose.Schema({
   name: { type: String, required: true },
   monthlyRevenue: { type: Number, required: true },
   monthlyCharges: { type: Number, required: true },
+  leftover: Number,
   share: Number,
   group: {
     type: mongoose.Schema.Types.ObjectId,
