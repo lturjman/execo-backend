@@ -3,38 +3,68 @@ var router = express.Router();
 var membersRouter = require("./members");
 var expensesRouter = require("./expenses");
 var paybacksRouter = require("./paybacks");
+const authMiddleware = require("../middlewares/auth");
+
+router.use(authMiddleware); // Protéger toutes les routes
 
 require("../models/group");
 const Group = require("../models/group");
 
+// Récupérer les groupes de l'utilisateur connecté
 router.get("/", (req, res) => {
-  return Group.find().then((data) => {
+  return Group.find({ user: req.user.userId }).then((data) => {
     res.json({ data });
   });
 });
 
+// Récupérer un groupe par son id / vérifier que le groupe appartient à l'utilisateur
 router.get("/:id", (req, res) => {
-  return Group.findById(req.params.id).then((data) => {
+  return Group.aggregate([
+    // Jointure avec la collection members
+    {
+      $lookup: {
+        from: "members", // nom de la collection MongoDB
+        localField: "_id", // champ local dans Group
+        foreignField: "groupId", // champ dans Member
+        as: "members",
+      },
+    },
+    // Filtrer les groupes où un des membres a ce userId
+    {
+      $match: {
+        "members.userId": req.user.userId,
+      },
+    },
+  ]).then((data) => {
     res.json({ data });
   });
 });
 
+// Créer un groupe pour l'utilisateur connecté
 router.post("/", (req, res) => {
-  return Group.create(req.body.group).then((data) => {
+  const groupData = { ...req.body.group, user: req.user.userId };
+  return Group.create(groupData).then((data) => {
     res.json({ data });
   });
 });
 
+// Modifier un groupe / vérifier que le groupe appartient à l'utilisateur
 router.put("/:id", (req, res) => {
-  return Group.findByIdAndUpdate(req.params.id, req.body.group, {
-    new: true,
-  }).then((data) => {
+  return Group.findOneAndUpdate(
+    { _id: req.params.id, user: req.user.userId },
+    req.body.group,
+    { new: true }
+  ).then((data) => {
     res.json({ data });
   });
 });
 
+// Supprimer un groupe / vérifier que le groupe appartient à l'utilisateur
 router.delete("/:id", (req, res) => {
-  return Group.findByIdAndDelete(req.params.id).then((data) => {
+  return Group.findByIdAndDelete({
+    _id: req.params.id,
+    user: req.user.userId,
+  }).then((data) => {
     res.json({ data });
   });
 });
