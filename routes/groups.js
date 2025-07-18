@@ -19,25 +19,11 @@ router.get("/", (req, res) => {
 
 // Récupérer un groupe par son id / vérifier que le groupe appartient à l'utilisateur
 router.get("/:id", (req, res) => {
-  return Group.aggregate([
-    // Jointure avec la collection members
-    {
-      $lookup: {
-        from: "members", // nom de la collection MongoDB
-        localField: "_id", // champ local dans Group
-        foreignField: "groupId", // champ dans Member
-        as: "members",
-      },
-    },
-    // Filtrer les groupes où un des membres a ce userId
-    {
-      $match: {
-        "members.userId": req.user.userId,
-      },
-    },
-  ]).then((data) => {
-    res.json({ data });
-  });
+  return Group.findOne({ user: req.user.userId, _id: req.params.id }).then(
+    (data) => {
+      res.json({ data });
+    }
+  );
 });
 
 // Créer un groupe pour l'utilisateur connecté
