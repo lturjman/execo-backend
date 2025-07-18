@@ -11,6 +11,10 @@ const memberSchema = mongoose.Schema({
     ref: "Group",
     required: true,
   },
+  user: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User",
+  },
 });
 
 const Member = mongoose.model("Member", memberSchema);
