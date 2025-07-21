@@ -14,8 +14,16 @@ var authRouter = require("./routes/auth");
 
 var app = express();
 
+const FRONTEND_URL = process.env.FRONTEND_URL;
+
 const cors = require("cors");
-app.use(cors());
+app.use(
+  cors({
+    origin: `${FRONTEND_URL}`,
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    credentials: true,
+  })
+);
 
 // view engine setup
 app.set("views", path.join(__dirname, "views"));
