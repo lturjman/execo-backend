@@ -16,14 +16,15 @@ var app = express();
 
 const FRONTEND_URL = process.env.FRONTEND_URL;
 
-const cors = require("cors");
-app.use(
-  cors({
-    origin: `${FRONTEND_URL}`,
-    methods: ["GET", "POST", "PUT", "DELETE"],
-    credentials: true,
-  })
-);
+const corsOptions = {
+  origin: "https://execo-frontend.vercel.app",
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"],
+  credentials: true,
+};
+
+app.use(cors(corsOptions));
+app.options("*", cors(corsOptions)); // Handle preflight requests
 
 // view engine setup
 app.set("views", path.join(__dirname, "views"));
