@@ -26,10 +26,6 @@ const FRONTEND_URL = process.env.FRONTEND_URL;
 // app.use(cors(corsOptions));
 // app.options("*", cors(corsOptions)); // Handle preflight requests
 
-// view engine setup
-app.set("views", path.join(__dirname, "views"));
-app.set("view engine", "pug");
-
 app.use(logger("dev"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
