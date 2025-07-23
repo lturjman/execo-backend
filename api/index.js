@@ -8,10 +8,9 @@ var path = require("path");
 var cookieParser = require("cookie-parser");
 var logger = require("morgan");
 
-var indexRouter = require("../routes/index");
-var usersRouter = require("../routes/users");
-var groupsRouter = require("../routes/groups");
-var authRouter = require("../routes/auth");
+var usersRouter = require("./users");
+var groupsRouter = require("./groups");
+var authRouter = require("./auth");
 
 var app = express();
 
@@ -25,7 +24,6 @@ const corsOptions = {
 };
 
 app.use(cors(corsOptions));
-app.options("*", cors(corsOptions)); // Handle preflight requests
 
 app.use(logger("dev"));
 app.use(express.json());
@@ -33,7 +31,6 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, "public")));
 
-app.use("/", indexRouter);
 app.use("/users", usersRouter);
 app.use("/groups", groupsRouter);
 app.use("/auth", authRouter);
