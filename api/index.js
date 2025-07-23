@@ -1,5 +1,5 @@
 require("dotenv").config();
-require("./models/connection");
+require("../models/connection");
 
 var createError = require("http-errors");
 var express = require("express");
@@ -7,24 +7,24 @@ var path = require("path");
 var cookieParser = require("cookie-parser");
 var logger = require("morgan");
 
-var indexRouter = require("./routes/index");
-var usersRouter = require("./routes/users");
-var groupsRouter = require("./routes/groups");
-var authRouter = require("./routes/auth");
+var indexRouter = require("../routes/index");
+var usersRouter = require("../routes/users");
+var groupsRouter = require("../routes/groups");
+var authRouter = require("../routes/auth");
 
 var app = express();
 
 const FRONTEND_URL = process.env.FRONTEND_URL;
 
-const corsOptions = {
-  origin: FRONTEND_URL,
-  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-  allowedHeaders: ["Content-Type", "Authorization"],
-  credentials: true,
-};
+// const corsOptions = {
+//   origin: FRONTEND_URL,
+//   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+//   allowedHeaders: ["Content-Type", "Authorization"],
+//   credentials: true,
+// };
 
-app.use(cors(corsOptions));
-app.options("*", cors(corsOptions)); // Handle preflight requests
+// app.use(cors(corsOptions));
+// app.options("*", cors(corsOptions)); // Handle preflight requests
 
 // view engine setup
 app.set("views", path.join(__dirname, "views"));
