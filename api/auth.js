@@ -59,7 +59,7 @@ router.post("/login", async (req, res) => {
 router.get("/me", authMiddleware, async (req, res) => {
   const user = await User.findById(req.user.userId).select("-password");
   if (!user) return res.status(400).json({ msg: "Utilisateur introuvable" });
-  res.json(user);
+  res.json({ data: user });
 });
 
 //Logout
