@@ -62,6 +62,15 @@ router.get("/me", authMiddleware, async (req, res) => {
   res.json({ data: user });
 });
 
+// Route protégée
+router.put("/me", authMiddleware, async (req, res) => {
+  return User.findOneAndUpdate({ _id: req.user.userId }, req.body, {
+    new: true,
+  }).then((data) => {
+    res.json({ data });
+  });
+});
+
 //Logout
 router.post("/logout", (req, res) => {
   res.json({ msg: "Déconnecté" });
