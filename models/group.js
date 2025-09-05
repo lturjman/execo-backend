@@ -6,6 +6,7 @@ const groupSchema = mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "User",
   },
+  imageUrl: { type: String, required: true },
 });
 
 const Group = mongoose.model("Group", groupSchema);
