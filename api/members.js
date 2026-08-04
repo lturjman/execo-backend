@@ -10,12 +10,9 @@ function computeMemberFinancials(group) {
   );
 
   group.members.forEach((m) => {
-    m.share =
-      totalLeftover.gt(0)
-        ? Number(
-            Decimal.div(m.user?.leftover || 0, totalLeftover).toFixed(4),
-          )
-        : 0;
+    m.share = totalLeftover.gt(0)
+      ? Number(Decimal.div(m.user?.leftover || 0, totalLeftover).toFixed(4))
+      : 0;
   });
 }
 
@@ -69,7 +66,6 @@ router.post("/", async (req, res) => {
       nickname: newMember.nickname,
       user: newMember.user,
       owner: newMember.owner,
-      leftover: newMember.user?.leftover || 0,
       share: newMember.share,
     },
   });

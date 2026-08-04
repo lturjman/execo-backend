@@ -10,6 +10,7 @@ var logger = require("morgan");
 
 var usersRouter = require("./users");
 var groupsRouter = require("./groups");
+var joinGroupRouter = require("./join-group");
 var authRouter = require("./auth");
 
 var app = express();
@@ -33,6 +34,7 @@ app.use(express.static(path.join(__dirname, "public")));
 
 app.use("/users", usersRouter);
 app.use("/groups", groupsRouter);
+app.use("/join-group", joinGroupRouter);
 app.use("/auth", authRouter);
 
 // catch 404 and forward to error handler
