@@ -15,7 +15,7 @@ router.get("/:code/available-members", async (req, res) => {
 
   const availableMembers = group.members.filter((member) => !member.user);
 
-  res.json({ availableMembers });
+  res.json({ groupName: group.name, availableMembers });
 });
 
 router.post("/:code/create-member", async (req, res) => {
