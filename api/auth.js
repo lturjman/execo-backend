@@ -3,6 +3,7 @@ const express = require("express");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const User = require("../models/user");
+const Group = require("../models/group");
 const authMiddleware = require("../middlewares/auth");
 
 const router = express.Router();
@@ -62,20 +63,27 @@ router.post("/login", async (req, res) => {
   });
 });
 
-// Route protégée
 router.get("/me", authMiddleware, async (req, res) => {
   const user = await User.findById(req.user.userId).select("-password");
   if (!user) return res.status(400).json({ msg: "Utilisateur introuvable" });
   res.json({ data: user });
 });
 
-// Route protégée
 router.put("/me", authMiddleware, async (req, res) => {
-  return User.findOneAndUpdate({ _id: req.user.userId }, req.body, {
+  const user = await User.findOneAndUpdate({ _id: req.user.userId }, req.body, {
     new: true,
-  }).then((data) => {
-    res.json({ data });
+  }).select("-password");
+  const groups = await Group.find({
+    "members.user": user._id,
   });
+
+  await Promise.all(
+    groups.map(async (group) => {
+      await group.computeMemberFinancials();
+      await group.save();
+    }),
+  );
+  return res.json({ data: user });
 });
 
 //Logout

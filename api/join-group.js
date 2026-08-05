@@ -32,8 +32,7 @@ router.post("/:code/create-member", async (req, res) => {
     user: req.body.member.user,
   });
 
-  // await group.populate("members.user");
-  // computeMemberFinancials(group);
+  await group.computeMemberFinancials();
   await group.save();
 
   const newMember = group.members[group.members.length - 1];
@@ -75,8 +74,7 @@ router.put("/:code/link-member/:id", authMiddleware, async (req, res) => {
 
   member.user = req.user.userId;
 
-  // await group.populate("members.user");
-  // computeMemberFinancials(group);
+  await group.computeMemberFinancials();
   await group.save();
 
   res.json({

@@ -34,7 +34,7 @@ router.get("/:id", async (req, res) => {
 router.post("/", async (req, res) => {
   const user = await User.findById(req.user.userId);
 
-  const group = await Group.create({
+  const group = new Group({
     ...req.body.group,
     user: user._id,
     members: [
@@ -46,7 +46,10 @@ router.post("/", async (req, res) => {
     ],
   });
 
-  res.json({ data: group });
+  await group.computeMemberFinancials();
+  const data = await group.save();
+
+  res.json({ data });
 });
 
 // Modifier un groupe / vérifier que le groupe appartient à l'utilisateur

@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
 const crypto = require("crypto");
+const Decimal = require("decimal.js");
 
 const memberSchema = mongoose.Schema({
   nickname: { type: String, required: true },
@@ -14,6 +15,30 @@ const groupSchema = mongoose.Schema({
   code: { type: String, required: true, unique: true },
   members: [memberSchema],
 });
+
+groupSchema.methods.computeMemberFinancials = async function () {
+  await this.populate("members.user");
+
+  if (this.members.some((member) => !member.user)) {
+    const equalShare = this.members.length
+      ? Number((1 / this.members.length).toFixed(4))
+      : 0;
+    this.members.forEach((m) => {
+      m.share = equalShare;
+    });
+  } else {
+    const totalLeftover = this.members.reduce(
+      (sum, m) => Decimal.add(sum, m.user?.leftover || 0),
+      new Decimal(0),
+    );
+
+    this.members.forEach((m) => {
+      m.share = totalLeftover.gt(0)
+        ? Number(Decimal.div(m.user?.leftover || 0, totalLeftover).toFixed(4))
+        : 0;
+    });
+  }
+};
 
 const CODE_CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
 
