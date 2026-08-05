@@ -53,80 +53,37 @@ router.get("/", async (req, res) => {
     const group = await findGroup(req, res);
     if (!group) return;
 
-    // Récupérer les crédits
-    const credits = await Expense.aggregate([
-      { $match: { group: group._id } },
-      { $unwind: "$credits" },
-      { $replaceRoot: { newRoot: "$credits" } },
-      {
-        $lookup: {
-          from: "members",
-          localField: "member",
-          foreignField: "_id",
-          as: "member",
-        },
-      },
-      { $unwind: "$member" },
-      {
-        $group: {
-          _id: "$member._id",
-          name: { $first: "$member.name" },
-          totalCredits: { $sum: "$amount" },
-        },
-      },
-    ]);
+    const membersById = new Map(
+      group.members.map((member) => [member._id.toString(), member]),
+    );
 
-    // Récupérer les dettes
-    const debts = await Expense.aggregate([
-      { $match: { group: group._id } },
-      { $unwind: "$debts" },
-      { $replaceRoot: { newRoot: "$debts" } },
-      {
-        $lookup: {
-          from: "members",
-          localField: "member",
-          foreignField: "_id",
-          as: "member",
-        },
-      },
-      { $unwind: "$member" },
-      {
-        $group: {
-          _id: "$member._id",
-          name: { $first: "$member.name" },
-          totalDebts: { $sum: "$amount" },
-        },
-      },
-    ]);
+    const expenses = await Expense.find({ group });
 
-    // Fusionner les résultats
-    const membersMap = {};
-
-    credits.forEach((credit) => {
-      membersMap[credit._id] = {
-        member: credit._id,
-        name: credit.name,
-        totalCredits: credit.totalCredits,
-        totalDebts: 0,
-      };
-    });
-
-    debts.forEach((debt) => {
-      const id = debt._id;
-      if (!membersMap[id]) {
-        membersMap[id] = {
-          member: debt._id,
-          name: debt.name,
+    const balancesMap = {};
+    const ensureBalance = (memberId) => {
+      const key = String(memberId);
+      if (!balancesMap[key]) {
+        balancesMap[key] = {
+          member: memberId,
+          name: membersById.get(key)?.nickname || null,
           totalCredits: 0,
-          totalDebts: debt.totalDebts,
+          totalDebts: 0,
         };
-      } else {
-        membersMap[id].totalDebts = debt.totalDebts;
       }
+      return balancesMap[key];
+    };
+
+    expenses.forEach((expense) => {
+      expense.credits.forEach((credit) => {
+        ensureBalance(credit.member).totalCredits += credit.amount;
+      });
+      expense.debts.forEach((debt) => {
+        ensureBalance(debt.member).totalDebts += debt.amount;
+      });
     });
 
     // Calculer le solde
-    const balances = Object.values(membersMap).map((member) => ({
+    const balances = Object.values(balancesMap).map((member) => ({
       ...member,
       balance: member.totalCredits - member.totalDebts,
     }));
