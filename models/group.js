@@ -2,19 +2,38 @@ const mongoose = require("mongoose");
 const crypto = require("crypto");
 const Decimal = require("decimal.js");
 
-const memberSchema = mongoose.Schema({
-  nickname: { type: String, required: true },
-  user: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
-  owner: { type: Boolean },
-  share: Number,
-});
+const memberSchema = mongoose.Schema(
+  {
+    nickname: { type: String, required: true },
+    user: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+    owner: { type: Boolean },
+    share: Number,
+  },
+  { timestamps: true },
+);
 
-const groupSchema = mongoose.Schema({
-  name: { type: String, required: true },
-  imageUrl: { type: String, required: true },
-  code: { type: String, required: true, unique: true },
-  members: [memberSchema],
-});
+const noteSchema = mongoose.Schema(
+  {
+    message: { type: String, required: true },
+    member: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Member",
+      required: true,
+    },
+  },
+  { timestamps: true },
+);
+
+const groupSchema = mongoose.Schema(
+  {
+    name: { type: String, required: true },
+    imageUrl: { type: String, required: true },
+    code: { type: String, required: true, unique: true },
+    members: [memberSchema],
+    notes: [noteSchema],
+  },
+  { timestamps: true },
+);
 
 groupSchema.methods.computeMemberFinancials = async function () {
   await this.populate("members.user");
