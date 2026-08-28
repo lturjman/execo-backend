@@ -10,6 +10,7 @@ var logger = require("morgan");
 
 var usersRouter = require("./users");
 var groupsRouter = require("./groups");
+var joinGroupRouter = require("./join-group");
 var authRouter = require("./auth");
 
 var app = express();
@@ -33,6 +34,7 @@ app.use(express.static(path.join(__dirname, "public")));
 
 app.use("/users", usersRouter);
 app.use("/groups", groupsRouter);
+app.use("/join-group", joinGroupRouter);
 app.use("/auth", authRouter);
 
 // catch 404 and forward to error handler
@@ -55,13 +57,12 @@ app.use(function (err, req, res, next) {
     });
   }
 
-  // set locals, only providing error in development
-  res.locals.message = err.message;
-  res.locals.error = req.app.get("env") === "development" ? err : {};
+  console.error(err);
 
-  // render the error page
-  res.status(err.status || 500);
-  res.render("error");
+  res.status(err.status || 500).json({
+    status: "error",
+    message: err.message || "Internal Server Error",
+  });
 });
 
 module.exports = app;
