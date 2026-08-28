@@ -4,6 +4,7 @@ var membersRouter = require("./members");
 var expensesRouter = require("./expenses");
 var paybacksRouter = require("./paybacks");
 var notesRouter = require("./notes");
+var listsRouter = require("./lists");
 const authMiddleware = require("../middlewares/auth");
 
 router.use(authMiddleware); // Protéger toutes les routes
@@ -78,5 +79,6 @@ router.use("/:groupId/members", membersRouter);
 router.use("/:groupId/expenses", expensesRouter);
 router.use("/:groupId/paybacks", paybacksRouter);
 router.use("/:groupId/notes", notesRouter);
+router.use("/:groupId/lists", listsRouter);
 
 module.exports = router;

@@ -24,6 +24,27 @@ const noteSchema = mongoose.Schema(
   { timestamps: true },
 );
 
+const listItemSchema = mongoose.Schema(
+  {
+    text: { type: String, required: true },
+    checked: { type: Boolean, default: false },
+  },
+  { timestamps: true },
+);
+
+const listSchema = mongoose.Schema(
+  {
+    title: { type: String, required: true },
+    member: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Member",
+      required: true,
+    },
+    items: [listItemSchema],
+  },
+  { timestamps: true },
+);
+
 const groupSchema = mongoose.Schema(
   {
     name: { type: String, required: true },
@@ -31,6 +52,7 @@ const groupSchema = mongoose.Schema(
     code: { type: String, required: true, unique: true },
     members: [memberSchema],
     notes: [noteSchema],
+    lists: [listSchema],
   },
   { timestamps: true },
 );
