@@ -3,40 +3,47 @@ const {
   validateTotalEqualsAmount,
 } = require("../middlewares/validateTotalEqualsAmount.js");
 
-const debtSchema = mongoose.Schema({
-  amount: {
-    type: Number,
-    required: true,
-    validate: {
-      validator: Number.isInteger,
-      message: (props) => `${props.value} n'est pas un entier`,
+const debtSchema = mongoose.Schema(
+  {
+    amount: {
+      type: Number,
+      required: true,
+      validate: {
+        validator: Number.isInteger,
+        message: (props) => `${props.value} n'est pas un entier`,
+      },
+    },
+
+    member: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Member",
+      required: true,
     },
   },
+  { timestamps: true },
+);
 
-  member: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "Member",
-    required: true,
-  },
-});
-
-const creditSchema = mongoose.Schema({
-  amount: {
-    type: Number,
-    required: true,
-    validate: {
-      validator: Number.isInteger,
-      message: (props) => `${props.value} n'est pas un entier`,
+const creditSchema = mongoose.Schema(
+  {
+    amount: {
+      type: Number,
+      required: true,
+      validate: {
+        validator: Number.isInteger,
+        message: (props) => `${props.value} n'est pas un entier`,
+      },
+    },
+    member: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Member",
+      required: true,
     },
   },
-  member: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "Member",
-    required: true,
-  },
-});
+  { timestamps: true },
+);
 
-const expenseSchema = mongoose.Schema({
+const expenseSchema = mongoose.Schema(
+  {
   name: { type: String, required: true },
   amount: {
     type: Number,
@@ -69,15 +76,17 @@ const expenseSchema = mongoose.Schema({
       message: "Il doit y avoir au moins un crédit.",
     },
   },
-});
+  },
+  { timestamps: true },
+);
 
 expenseSchema.pre("validate", function (next) {
   if (!validateTotalEqualsAmount(this.debts, this.amount)) {
     return next(
       this.invalidate(
         "amount",
-        "La somme des dettes ne correspond pas au montant."
-      )
+        "La somme des dettes ne correspond pas au montant.",
+      ),
     );
   }
 
@@ -89,8 +98,8 @@ expenseSchema.pre("validate", function (next) {
     return next(
       this.invalidate(
         "amount",
-        "La somme des crédits ne correspond pas au montant."
-      )
+        "La somme des crédits ne correspond pas au montant.",
+      ),
     );
   }
 
