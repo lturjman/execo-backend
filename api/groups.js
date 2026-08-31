@@ -55,14 +55,18 @@ router.post("/", async (req, res) => {
 });
 
 // Modifier un groupe / vérifier que le groupe appartient à l'utilisateur
-router.put("/:id", (req, res) => {
-  return Group.findOneAndUpdate(
-    { _id: req.params.id, user: req.user.userId },
-    req.body.group,
-    { new: true },
-  ).then((data) => {
+router.put("/:id", async (req, res) => {
+  try {
+    const { _id, members, user, ...updateData } = req.body.group;
+    const data = await Group.findOneAndUpdate(
+      { _id: req.params.id, "members.user": req.user.userId },
+      updateData,
+      { new: true },
+    );
     res.json({ data });
-  });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
 });
 
 // Supprimer un groupe / vérifier que le groupe appartient à l'utilisateur
