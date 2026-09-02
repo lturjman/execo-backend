@@ -1,94 +1,94 @@
-require("dotenv").config({ path: ".env.development" });
-const express = require("express");
-const bcrypt = require("bcryptjs");
-const jwt = require("jsonwebtoken");
-const User = require("../models/user");
-const Group = require("../models/group");
-const authMiddleware = require("../middlewares/auth");
+require('dotenv').config({ path: '.env.development' })
+const express = require('express')
+const bcrypt = require('bcryptjs')
+const jwt = require('jsonwebtoken')
+const User = require('../models/user')
+const Group = require('../models/group')
+const authMiddleware = require('../middlewares/auth')
 
-const router = express.Router();
+const router = express.Router()
 
-const JWT_SECRET = process.env.JWT_SECRET;
+const JWT_SECRET = process.env.JWT_SECRET
 
 // Register
-router.post("/register", async (req, res) => {
+router.post('/register', async (req, res) => {
   const { username, email, password, monthlyRevenues, monthlyCharges } =
-    req.body;
+    req.body
 
-  const existing = await User.findOne({ email });
-  if (existing) return res.status(400).json({ msg: "Utilisateur existe déjà" });
+  const existing = await User.findOne({ email })
+  if (existing) return res.status(400).json({ msg: 'Utilisateur existe déjà' })
 
-  const hashed = await bcrypt.hash(password, 10);
+  const hashed = await bcrypt.hash(password, 10)
   const newUser = new User({
     username,
     email,
     password: hashed,
     monthlyRevenues,
-    monthlyCharges,
-  });
-  await newUser.save();
+    monthlyCharges
+  })
+  await newUser.save()
 
   const token = jwt.sign(
     { userId: newUser._id, email: newUser.email },
     JWT_SECRET,
-    { expiresIn: "7d" },
-  );
+    { expiresIn: '7d' }
+  )
 
   res.status(200).json({
-    msg: "Utilisateur créé et connecté",
+    msg: 'Utilisateur créé et connecté',
     token,
-    user: { id: newUser._id, email: newUser.email },
-  });
-});
+    user: { id: newUser._id, email: newUser.email }
+  })
+})
 
 // Login
-router.post("/login", async (req, res) => {
-  const { email, password } = req.body;
+router.post('/login', async (req, res) => {
+  const { email, password } = req.body
 
-  const user = await User.findOne({ email });
-  if (!user) return res.status(400).json({ msg: "Utilisateur non trouvé" });
+  const user = await User.findOne({ email })
+  if (!user) return res.status(400).json({ msg: 'Utilisateur non trouvé' })
 
-  const isMatch = await bcrypt.compare(password, user.password);
-  if (!isMatch) return res.status(400).json({ msg: "Mot de passe incorrect" });
+  const isMatch = await bcrypt.compare(password, user.password)
+  if (!isMatch) return res.status(400).json({ msg: 'Mot de passe incorrect' })
 
   // Génère le token JWT
   const token = jwt.sign({ userId: user._id, email: user.email }, JWT_SECRET, {
-    expiresIn: "7d",
-  });
+    expiresIn: '7d'
+  })
 
   res.json({
-    msg: "Connecté",
+    msg: 'Connecté',
     token,
-    user: { id: user._id, email: user.email },
-  });
-});
+    user: { id: user._id, email: user.email }
+  })
+})
 
-router.get("/me", authMiddleware, async (req, res) => {
-  const user = await User.findById(req.user.userId).select("-password");
-  if (!user) return res.status(400).json({ msg: "Utilisateur introuvable" });
-  res.json({ data: user });
-});
+router.get('/me', authMiddleware, async (req, res) => {
+  const user = await User.findById(req.user.userId).select('-password')
+  if (!user) return res.status(400).json({ msg: 'Utilisateur introuvable' })
+  res.json({ data: user })
+})
 
-router.put("/me", authMiddleware, async (req, res) => {
+router.put('/me', authMiddleware, async (req, res) => {
   const user = await User.findOneAndUpdate({ _id: req.user.userId }, req.body, {
-    new: true,
-  }).select("-password");
+    new: true
+  }).select('-password')
   const groups = await Group.find({
-    "members.user": user._id,
-  });
+    'members.user': user._id
+  })
 
   await Promise.all(
     groups.map(async (group) => {
-      await group.computeMemberFinancials();
-      await group.save();
-    }),
-  );
-  return res.json({ data: user });
-});
+      await group.computeMemberFinancials()
+      await group.save()
+    })
+  )
+  return res.json({ data: user })
+})
 
-//Logout
-router.post("/logout", (req, res) => {
-  res.json({ msg: "Déconnecté" });
-});
+// Logout
+router.post('/logout', (req, res) => {
+  res.json({ msg: 'Déconnecté' })
+})
 
-module.exports = router;
+module.exports = router

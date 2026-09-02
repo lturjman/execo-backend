@@ -1,68 +1,63 @@
-require("dotenv").config();
-require("../models/connection");
-var cors = require("cors");
+require('dotenv').config()
+require('../models/connection')
+const cors = require('cors')
+const createError = require('http-errors')
+const express = require('express')
+const cookieParser = require('cookie-parser')
+const logger = require('morgan')
 
-var createError = require("http-errors");
-var express = require("express");
-var path = require("path");
-var cookieParser = require("cookie-parser");
-var logger = require("morgan");
+const groupsRouter = require('./groups')
+const joinGroupRouter = require('./join-group')
+const authRouter = require('./auth')
 
-var usersRouter = require("./users");
-var groupsRouter = require("./groups");
-var joinGroupRouter = require("./join-group");
-var authRouter = require("./auth");
+const app = express()
 
-var app = express();
-
-const FRONTEND_URL = process.env.FRONTEND_URL;
+const FRONTEND_URL = process.env.FRONTEND_URL
 
 const corsOptions = {
   origin: FRONTEND_URL,
-  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-  allowedHeaders: ["Content-Type", "Authorization"],
-  credentials: true,
-};
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: true
+}
 
-app.use(cors(corsOptions));
+app.use(cors(corsOptions))
 
-app.use(logger("dev"));
-app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
-app.use(cookieParser());
-app.use(express.static(path.join(__dirname, "public")));
+app.use(logger('dev'))
+app.use(express.json())
+app.use(express.urlencoded({ extended: false }))
+app.use(cookieParser())
 
-app.use("/users", usersRouter);
-app.use("/groups", groupsRouter);
-app.use("/join-group", joinGroupRouter);
-app.use("/auth", authRouter);
+app.use('/groups', groupsRouter)
+app.use('/join-group', joinGroupRouter)
+app.use('/auth', authRouter)
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
-  next(createError(404));
-});
+  next(createError(404))
+})
 
 // error handler
 app.use(function (err, req, res, next) {
-  if (err.name === "ValidationError") {
+  if (err.name === 'ValidationError') {
     const errors = Object.values(err.errors).map((e) => ({
       field: e.path,
-      message: e.message,
-    }));
+      message: e.message
+    }))
 
     return res.status(422).json({
-      status: "error",
-      message: "Validation failed",
-      errors,
-    });
+      status: 'error',
+      message: 'Validation failed',
+      errors
+    })
   }
 
-  console.error(err);
+  console.error(err)
 
   res.status(err.status || 500).json({
-    status: "error",
-    message: err.message || "Internal Server Error",
-  });
-});
+    status: 'error',
+    message: err.message || 'Internal Server Error'
+  })
+})
 
-module.exports = app;
+module.exports = app
