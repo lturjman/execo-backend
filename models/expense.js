@@ -1,99 +1,115 @@
-const mongoose = require('mongoose')
+const mongoose = require("mongoose");
 const {
-  validateTotalEqualsAmount
-} = require('../middlewares/validateTotalEqualsAmount.js')
+  validateTotalEqualsAmount,
+} = require("../middlewares/validateTotalEqualsAmount.js");
 
 const moneySchema = {
   type: Number,
   required: true,
   validate: {
     validator: Number.isInteger,
-    message: (props) => `${props.value} n'est pas un entier`
-  }
-}
+    message: (props) => `${props.value} n'est pas un entier`,
+  },
+};
 
 const debtSchema = mongoose.Schema(
   {
     amount: moneySchema,
     member: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'Member',
-      required: true
-    }
+      ref: "Member",
+      required: true,
+    },
   },
-  { timestamps: true }
-)
+  { timestamps: true },
+);
 
 const creditSchema = mongoose.Schema(
   {
     amount: moneySchema,
     member: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'Member',
-      required: true
-    }
+      ref: "Member",
+      required: true,
+    },
   },
-  { timestamps: true }
-)
+  { timestamps: true },
+);
 
 const expenseSchema = mongoose.Schema(
   {
     name: { type: String, required: true },
+    category: {
+      type: String,
+      enum: [
+        "🛏️ Logement",
+        "🎤 Divertissement",
+        "🛒 Courses",
+        "🦷 Santé",
+        "🧯 Assurance",
+        "🏠 Loyer & charges",
+        "🍔 Restaurant & bar",
+        "🛍️ Shopping",
+        "🚕 Transport",
+        "⚙️ Autre",
+      ],
+      required: true,
+    },
     amount: moneySchema,
     paymentDate: { type: Date, required: true, default: Date.now },
     group: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'Group',
-      required: true
+      ref: "Group",
+      required: true,
     },
     debts: {
       type: [debtSchema],
       validate: {
         validator: function (v) {
-          return Array.isArray(v) && v.length > 0
+          return Array.isArray(v) && v.length > 0;
         },
-        message: 'Il doit y avoir au moins une dette.'
-      }
+        message: "Il doit y avoir au moins une dette.",
+      },
     },
     credits: {
       type: [creditSchema],
       validate: {
         validator: function (v) {
-          return Array.isArray(v) && v.length > 0
+          return Array.isArray(v) && v.length > 0;
         },
-        message: 'Il doit y avoir au moins un crédit.'
-      }
-    }
+        message: "Il doit y avoir au moins un crédit.",
+      },
+    },
   },
-  { timestamps: true }
-)
+  { timestamps: true },
+);
 
-expenseSchema.pre('validate', function (next) {
+expenseSchema.pre("validate", function (next) {
   if (!validateTotalEqualsAmount(this.debts, this.amount)) {
     return next(
       this.invalidate(
-        'amount',
-        'La somme des dettes ne correspond pas au montant.'
-      )
-    )
+        "amount",
+        "La somme des dettes ne correspond pas au montant.",
+      ),
+    );
   }
 
-  next()
-})
+  next();
+});
 
-expenseSchema.pre('validate', function (next) {
+expenseSchema.pre("validate", function (next) {
   if (!validateTotalEqualsAmount(this.credits, this.amount)) {
     return next(
       this.invalidate(
-        'amount',
-        'La somme des crédits ne correspond pas au montant.'
-      )
-    )
+        "amount",
+        "La somme des crédits ne correspond pas au montant.",
+      ),
+    );
   }
 
-  next()
-})
+  next();
+});
 
-const Expense = mongoose.model('Expense', expenseSchema)
+const Expense = mongoose.model("Expense", expenseSchema);
 
-module.exports = Expense
+module.exports = Expense;
