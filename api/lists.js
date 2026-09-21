@@ -85,6 +85,28 @@ router.post('/:id/items', async (req, res) => {
   })
 })
 
+router.put('/:id/items/reorder', async (req, res) => {
+  const group = await findGroup(req, res)
+  if (!group) return
+  const list = group.lists.id(req.params.id)
+  if (!list) {
+    return res.status(404).json({ error: 'List not found' })
+  }
+  if (!Array.isArray(req.body.itemIds)) {
+    return res.status(400).json({ error: 'itemIds is required' })
+  }
+  const itemsById = new Map(list.items.map((item) => [String(item._id), item]))
+  const reordered = req.body.itemIds
+    .map((id) => itemsById.get(String(id)))
+    .filter(Boolean)
+  list.items.forEach((item) => {
+    if (!reordered.includes(item)) reordered.push(item)
+  })
+  list.items.splice(0, list.items.length, ...reordered)
+  await group.save()
+  res.json({ data: serializeList(list) })
+})
+
 router.put('/:id/items/:itemId', async (req, res) => {
   const group = await findGroup(req, res)
   if (!group) return
