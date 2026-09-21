@@ -40,6 +40,7 @@ const expenseSchema = mongoose.Schema(
   {
     name: { type: String, required: true },
     amount: moneySchema,
+    paymentDate: { type: Date, required: true, default: Date.now },
     group: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Group',
