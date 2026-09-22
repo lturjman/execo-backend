@@ -5,6 +5,7 @@ const expensesRouter = require('./expenses')
 const paybacksRouter = require('./paybacks')
 const notesRouter = require('./notes')
 const listsRouter = require('./lists')
+const agendaRouter = require('./agenda')
 const authMiddleware = require('../middlewares/auth')
 
 router.use(authMiddleware) // Protéger toutes les routes
@@ -83,5 +84,6 @@ router.use('/:groupId/expenses', expensesRouter)
 router.use('/:groupId/paybacks', paybacksRouter)
 router.use('/:groupId/notes', notesRouter)
 router.use('/:groupId/lists', listsRouter)
+router.use('/:groupId/agenda', agendaRouter)
 
 module.exports = router
