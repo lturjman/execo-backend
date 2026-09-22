@@ -45,6 +45,41 @@ const listSchema = mongoose.Schema(
   { timestamps: true }
 )
 
+const eventSchema = mongoose.Schema(
+  {
+    title: { type: String, required: true },
+    type: {
+      type: String,
+      enum: [
+        'événement',
+        'rendez-vous',
+        'échéance',
+        'anniversaire',
+        'absence',
+        'autre'
+      ],
+      default: 'événement'
+    },
+    date: { type: Date, required: true },
+    endDate: { type: Date },
+    startTime: { type: String },
+    endTime: { type: String },
+    location: { type: String },
+    member: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Member',
+      required: true
+    },
+    members: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Member'
+      }
+    ]
+  },
+  { timestamps: true }
+)
+
 const groupSchema = mongoose.Schema(
   {
     name: { type: String, required: true },
@@ -52,7 +87,8 @@ const groupSchema = mongoose.Schema(
     code: { type: String, required: true, unique: true },
     members: [memberSchema],
     notes: [noteSchema],
-    lists: [listSchema]
+    lists: [listSchema],
+    agenda: [eventSchema]
   },
   { timestamps: true }
 )
