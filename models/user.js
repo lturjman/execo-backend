@@ -7,7 +7,10 @@ const userSchema = mongoose.Schema(
     password: { type: String, required: true },
     monthlyRevenues: { type: Number, required: true },
     monthlyCharges: { type: Number, required: true },
-    leftover: Number
+    leftover: Number,
+    resetPasswordToken: String,
+    resetPasswordExpires: Date,
+    tokenVersion: { type: Number, default: 0 }
   },
   { timestamps: true }
 )
