@@ -1,4 +1,3 @@
-require("dotenv").config({ path: ".env.development" });
 const { Resend } = require("resend");
 
 const FROM = process.env.EMAIL_FROM || "Execo <onboarding@resend.dev>";
