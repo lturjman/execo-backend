@@ -62,6 +62,19 @@ const eventSchema = mongoose.Schema(
     },
     date: { type: Date, required: true },
     endDate: { type: Date },
+    recurrenceFrequency: {
+      type: String,
+      enum: [
+        'day',
+        'week',
+        'two-weeks',
+        'month',
+        'three-months',
+        'six-months',
+        'year'
+      ]
+    },
+    recurrenceEndDate: { type: Date },
     startTime: { type: String },
     endTime: { type: String },
     location: { type: String },
