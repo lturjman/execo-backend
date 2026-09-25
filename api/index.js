@@ -1,5 +1,5 @@
 require('dotenv').config()
-require('../models/connection')
+const connectDB = require('../models/connection')
 const cors = require('cors')
 const createError = require('http-errors')
 const express = require('express')
@@ -27,6 +27,15 @@ app.use(logger('dev'))
 app.use(express.json())
 app.use(express.urlencoded({ extended: false }))
 app.use(cookieParser())
+
+app.use(async (_req, _res, next) => {
+  try {
+    await connectDB()
+    next()
+  } catch (e) {
+    next(e)
+  }
+})
 
 app.use('/groups', groupsRouter)
 app.use('/join-group', joinGroupRouter)

@@ -1,26 +1,23 @@
 const mongoose = require('mongoose')
 
-const connectionString = process.env.CONNECTION_STRING
+const MONGODB_URI = process.env.CONNECTION_STRING
 
-function connectDB () {
-  if (global.mongooseConnectionPromise) return global.mongooseConnectionPromise
-
-  global.mongooseConnectionPromise = mongoose.connect(connectionString, {
-    serverSelectionTimeoutMS: 6000,
-    connectTimeoutMS: 6000,
-    maxPoolSize: 10
-  })
-
-  global.mongooseConnectionPromise
-    .then(() => console.log('Database connected'))
-    .catch((error) => {
-      console.error('MongoDB connection failed:', error)
-      global.mongooseConnectionPromise = null
+async function connectDB () {
+  if (mongoose.connection.readyState >= 1) return
+  if (!global.mongooseConnectionPromise) {
+    global.mongooseConnectionPromise = mongoose.connect(MONGODB_URI, {
+      serverSelectionTimeoutMS: 5000,
+      connectTimeoutMS: 5000,
+      maxPoolSize: 10,
+      bufferCommands: false
     })
-
-  return global.mongooseConnectionPromise
+  }
+  try {
+    await global.mongooseConnectionPromise
+  } catch (err) {
+    global.mongooseConnectionPromise = null
+    throw err
+  }
 }
-
-connectDB()
 
 module.exports = connectDB
