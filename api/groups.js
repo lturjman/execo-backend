@@ -35,6 +35,7 @@ router.get('/:id', async (req, res) => {
 // Créer un groupe + ajouter le créateur comme premier membre
 router.post('/', async (req, res) => {
   const user = await User.findById(req.user.userId)
+  if (!user) return res.status(404).json({ error: 'User not found' })
 
   const group = new Group({
     ...req.body.group,
@@ -56,6 +57,9 @@ router.post('/', async (req, res) => {
 
 // Modifier un groupe / vérifier que le groupe appartient à l'utilisateur
 router.put('/:id', async (req, res) => {
+  if (!req.body.group || typeof req.body.group !== 'object') {
+    return res.status(400).json({ error: 'group is required' })
+  }
   try {
     const { _id, members, user, ...updateData } = req.body.group
     const data = await Group.findOneAndUpdate(
@@ -65,6 +69,14 @@ router.put('/:id', async (req, res) => {
     )
     res.json({ data })
   } catch (error) {
+    // Un payload invalide ne doit pas remonter en 500.
+    if (error.name === 'ValidationError') {
+      return res.status(422).json({ error: 'Validation failed' })
+    }
+    if (error.name === 'CastError') {
+      return res.status(400).json({ error: 'Identifiant invalide' })
+    }
+    console.error(error)
     res.status(500).json({ error: error.message })
   }
 })

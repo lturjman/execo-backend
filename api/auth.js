@@ -98,6 +98,8 @@ router.put('/me', authMiddleware, async (req, res) => {
   const user = await User.findOneAndUpdate({ _id: req.user.userId }, req.body, {
     new: true
   }).select('-password')
+  if (!user) return res.status(404).json({ msg: 'Utilisateur introuvable' })
+
   const groups = await Group.find({
     'members.user': user._id
   })

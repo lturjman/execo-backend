@@ -61,6 +61,25 @@ app.use(function (err, req, res, next) {
     })
   }
 
+  // Un ObjectId malformé est une faute de requête, pas une panne serveur.
+  if (err.name === 'CastError') {
+    return res.status(400).json({
+      status: 'error',
+      message: 'Identifiant invalide'
+    })
+  }
+
+  // Base de données injoignable : 503, pas 500.
+  if (
+    err.name === 'MongoServerSelectionError' ||
+    err.name === 'MongooseServerSelectionError'
+  ) {
+    return res.status(503).json({
+      status: 'error',
+      message: 'Service temporairement indisponible'
+    })
+  }
+
   console.error(err)
 
   res.status(err.status || 500).json({
