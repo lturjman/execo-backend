@@ -11,6 +11,10 @@ function attachMembers (expense, group) {
 
   const data = expense.toObject({ versionKey: false })
 
+  // Sur create, le champ group peut contenir le document complet plutôt que son
+  // ObjectId ; on normalise pour que la réponse soit identique à celle du GET.
+  data.group = data.group?._id || data.group
+
   data.debts = data.debts.map((debt) => ({
     ...debt,
     member: membersById.get(String(debt.member)) || debt.member
