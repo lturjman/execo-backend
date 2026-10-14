@@ -39,6 +39,12 @@ const creditSchema = mongoose.Schema(
 const expenseSchema = mongoose.Schema(
   {
     name: { type: String, required: true },
+    kind: {
+      type: String,
+      enum: ["expense", "refund"],
+      default: "expense",
+      required: true,
+    },
     category: {
       type: String,
       enum: [
@@ -52,6 +58,7 @@ const expenseSchema = mongoose.Schema(
         "🛍️ Shopping",
         "🚕 Transport",
         "⚙️ Autre",
+        "💸 Remboursement",
       ],
       required: true,
     },
